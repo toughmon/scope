@@ -5,9 +5,10 @@ import App from './App.jsx'
 import NewPrototype from './NewPrototype.jsx'
 
 const path = window.location.pathname;
+const isNew = path.includes('/new');
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    {path === '/new' ? <NewPrototype /> : <App />}
+    {isNew ? <NewPrototype /> : <App />}
   </StrictMode>,
 )
