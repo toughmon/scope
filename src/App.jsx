@@ -1,12 +1,69 @@
 import React, { useState } from 'react';
+import { 
+  Play, 
+  FileText, 
+  HelpCircle, 
+  Link as LinkIcon, 
+  Type, 
+  Rocket, 
+  Cpu, 
+  Layout, 
+  MousePointer2,
+  AlertCircle
+} from 'lucide-react';
 import './App.css';
 
 const MOCK_CONTENTS = [
-  { id: 1, title: '콘텐츠 0 (기본)', type: 'video', content_group_order: 0, content_group_no: 101, content_span_scope: 1 },
-  { id: 2, title: '콘텐츠 1 (1&3 페어)', type: 'pdf', content_group_order: 1, content_group_no: 101, content_span_scope: 10 }, // 1(2^1=2) + 3(2^3=8) = 10
-  { id: 3, title: '콘텐츠 2 (2&3 페어)', type: 'quiz', content_group_order: 2, content_group_no: 101, content_span_scope: 12 }, // 2(2^2=4) + 3(2^3=8) = 12
-  { id: 4, title: '콘텐츠 3 (공통 페어)', type: 'link', content_group_order: 3, content_group_no: 101, content_span_scope: 8 },
-  { id: 5, title: '콘텐츠 4 (독립)', type: 'text', content_group_order: 4, content_group_no: 101, content_span_scope: 16 },
+  { 
+    id: 1, 
+    title: '101-콘텐츠1', 
+    type: 'VIDEO', 
+    content_group_order: 0, 
+    content_group_no: 101, 
+    content_span_scope: 1, 
+    icon: Play,
+    desc: '강의 인트로 및 개요'
+  },
+  { 
+    id: 2, 
+    title: '101-콘텐츠2', 
+    type: 'PDF', 
+    content_group_order: 1, 
+    content_group_no: 101, 
+    content_span_scope: 10, 
+    icon: FileText,
+    desc: '핵심 요약 노트 문서'
+  },
+  { 
+    id: 3, 
+    title: '101-콘텐츠3', 
+    type: 'QUIZ', 
+    content_group_order: 2, 
+    content_group_no: 101, 
+    content_span_scope: 12, 
+    icon: HelpCircle,
+    desc: '섹션별 성취도 퀴즈'
+  },
+  { 
+    id: 4, 
+    title: '101-콘텐츠4', 
+    type: 'LINK', 
+    content_group_order: 3, 
+    content_group_no: 101, 
+    content_span_scope: 8, 
+    icon: LinkIcon,
+    desc: '심화 외부 자료 링크'
+  },
+  { 
+    id: 5, 
+    title: '101-콘텐츠5', 
+    type: 'TEXT', 
+    content_group_order: 4, 
+    content_group_no: 101, 
+    content_span_scope: 16, 
+    icon: Type,
+    desc: '개념 보충 안내 가이드'
+  },
 ];
 
 function App() {
@@ -29,97 +86,111 @@ function App() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>LMS 콘텐츠 동시 노출 프로토타입 v2</h1>
-        <p>개별 콘텐츠별 defined <code>content_span_scope</code> 검증</p>
+        <h1>LMS Smart View</h1>
+        <p>Bitmask AND 연산을 활용한 지능형 콘텐츠 레이아웃 엔진 프로토타입</p>
       </header>
 
+      <div className="info-section">
+        <div className="info-card">
+          <h3>메커니즘 검증</h3>
+          <ul>
+            <li>
+              <strong>Scenario A (1&3)</strong>
+              Scope: 10 (1010)
+            </li>
+            <li>
+              <strong>Scenario B (2&3)</strong>
+              Scope: 12 (1100)
+            </li>
+            <li>
+              <strong>Logic Accuracy</strong>
+              Bitwise AND 100%
+            </li>
+          </ul>
+        </div>
+      </div>
+
       <main className="app-main">
-        {/* 설명 섹션 */}
-        <section className="info-section">
-          <div className="info-card">
-            <h3>사용자 피드백 반영 사항</h3>
-            <ul>
-              <li><strong>시나리오 A (1 & 3 동시 노출)</strong>: <code>content_span_scope</code> = <strong>10</strong> (binary: 1010)</li>
-              <li><strong>시나리오 B (2 & 3 동시 노출)</strong>: <code>content_span_scope</code> = <strong>12</strong> (binary: 1100)</li>
-              <li>두 시나리오가 서로 다른 scope 값을 가짐으로써 중복 없이 동시 노출 그룹을 제어할 수 있음을 증명합니다.</li>
-            </ul>
+        {/* 제어 패널 (사이드바 - 실행만 담당) */}
+        <aside className="panel-card sidebar-only">
+          <h2><Rocket size={16} /> Smart Controller</h2>
+          
+          <div className="launch-list">
+            {MOCK_CONTENTS.map((content) => (
+              <div key={content.id} className="launch-item">
+                <div className="launch-info">
+                  <span className="launch-title">{content.title}</span>
+                  <span className="scope-badge">scope_val: {content.content_span_scope}</span>
+                </div>
+                <button 
+                  className="launch-btn"
+                  onClick={() => applyPredefinedScope(content.content_span_scope)}
+                  title="해당 scope 적용"
+                >
+                  <MousePointer2 size={14} />
+                </button>
+              </div>
+            ))}
           </div>
-        </section>
+        </aside>
 
-        {/* 제어 패널 */}
-        <section className="control-panel">
-          <div className="panel-grid">
-            {/* 개별 콘텐츠 실행 테스트 */}
-            <div className="panel-card">
-              <h2>강의 실행 (콘텐츠별 Scope 로드)</h2>
-              <div className="launch-list">
-                {MOCK_CONTENTS.map((content) => (
-                  <div key={content.id} className="launch-item">
-                    <div className="launch-info">
-                      <span className="order-badge">{content.content_group_order}</span>
-                      <span className="launch-title">{content.title}</span>
-                      <code className="scope-code">scope: {content.content_span_scope}</code>
-                    </div>
-                    <button 
-                      className="launch-btn"
-                      onClick={() => applyPredefinedScope(content.content_span_scope)}
-                    >
-                      실행
-                    </button>
-                  </div>
-                ))}
+        {/* 메인 뷰어 (상단에 Bitmask State 위치) */}
+        <section className="content-display">
+          <div className="display-top-bar">
+            <div className="bitmask-status-horizontal">
+              <div className="status-label"><Cpu size={16} /> Bitmask State:</div>
+              <div className="horizontal-val-group">
+                <span className="h-val">{activeScope}</span>
+                <span className="h-bin">({activeScope.toString(2).padStart(5, '0')})</span>
               </div>
-            </div>
-
-            {/* 현재 상태 및 수동 제어 */}
-            <div className="panel-card">
-              <h2>현재 활성 Bitmask (activeScope)</h2>
-              <div className="value-display highlight">
-                <span className="label">Current Active Scope:</span>
-                <span className="value">{activeScope}</span>
-                <span className="binary">(binary: {activeScope.toString(2).padStart(5, '0')})</span>
-              </div>
-              <div className="bit-toggles small">
+              <div className="h-bit-toggles">
                 {[0, 1, 2, 3, 4].map((order) => (
                   <button
                     key={order}
-                    className={`bit-btn-small ${isVisible(order) ? 'active' : ''}`}
+                    className={`h-bit-btn ${isVisible(order) ? 'active' : ''}`}
                     onClick={() => toggleBit(order)}
                   >
-                    Bit {order}
+                    B{order}
                   </button>
                 ))}
               </div>
+              <div className="active-item-badge">
+                Active Items: <strong>{visibleContents.length}</strong>
+              </div>
             </div>
           </div>
-        </section>
 
-        {/* 콘텐츠 노출 영역 */}
-        <section className="content-display">
-          <div className="display-header">
-            <h3>학습 레이아웃 (노출 개수: {visibleContents.length})</h3>
+          <div className="display-header-sub">
+            <h3><Layout size={18} style={{verticalAlign: 'middle', marginRight: '8px'}} /> 학습 레이아웃</h3>
           </div>
-          <div className={`content-grid visible-${visibleContents.length}`}>
+
+          <div className={`content-grid visible-${visibleContents.length} compact-grid`}>
             {visibleContents.length > 0 ? (
-              visibleContents.map((content) => (
-                <div key={content.id} className={`content-card type-${content.type} ${isVisible(content.content_group_order) ? 'visible' : ''}`}>
-                  <div className="content-tag">{content.type.toUpperCase()}</div>
-                  <h4>{content.title}</h4>
-                  <div className="content-placeholder">
-                    {content.type === 'video' && <div className="video-icon">▶</div>}
-                    {content.type === 'pdf' && <div className="pdf-icon">📄</div>}
-                    {content.type === 'quiz' && <div className="quiz-icon">❓</div>}
-                    {content.type === 'link' && <div className="quiz-icon">🔗</div>}
-                    <p>{content.title} 본문</p>
+              visibleContents.map((content) => {
+                const Icon = content.icon;
+                return (
+                  <div key={content.id} className="content-card mini-card">
+                    <div className="card-top">
+                      <span className={`type-tag ${content.type}`}>{content.type}</span>
+                      <div className="card-icon"><Icon size={18} /></div>
+                    </div>
+                    <h4>{content.title}</h4>
+                    <div className="preview-area mini-preview">
+                      <div className="preview-placeholder">
+                        <p>{content.desc}</p>
+                      </div>
+                    </div>
+                    <div className="card-footer">
+                      <span>Order: {content.content_group_order}</span>
+                      <span>Group: {content.content_group_no}</span>
+                    </div>
                   </div>
-                  <div className="content-footer">
-                    Order: {content.content_group_order} | Group: {content.content_group_no}
-                  </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="empty-state">
-                활성화된 콘텐츠가 없습니다. 좌측 상단 '실행' 버튼을 눌러보세요.
+                <AlertCircle size={48} className="empty-icon" />
+                <p>활성화된 콘텐츠가 없습니다.</p>
               </div>
             )}
           </div>
