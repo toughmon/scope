@@ -9,9 +9,10 @@ import { useState, useMemo } from "react";
 //     → 0101 = 영상A(0001) | 퀴즈(0100)
 //     → 영상A 실행 시: display = 0101, 영상A·퀴즈 노출, 영상B 숨김
 const INIT_CONTENTS = [
-  { id:1, title:"강의 영상 A", order:1, slot_bit:0b0001, content_bitmask:0b0101 },
-  { id:2, title:"강의 영상 B", order:2, slot_bit:0b0010, content_bitmask:0b0110 },
-  { id:3, title:"퀴즈 패널",   order:3, slot_bit:0b0100, content_bitmask:0b0100 },
+  { id:1, title:"강의 영상 A", order:1, slot_bit:0b0001, content_bitmask:0b1101, type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", desc: "HTML5 빅벅버니 비디오 샘플입니다. 실제 영상 재생을 테스트해볼 수 있습니다." },
+  { id:2, title:"강의 영상 B", order:2, slot_bit:0b0010, content_bitmask:0b1010, type: "video", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm", desc: "대체 비디오 소스입니다. 다른 내용을 시연할 때 사용됩니다." },
+  { id:3, title:"퀴즈 패널",   order:3, slot_bit:0b0100, content_bitmask:0b0100, type: "quiz", desc: "학습 내용을 점검하는 퀴즈 섹션입니다." },
+  { id:4, title:"학습 자료",   order:4, slot_bit:0b1000, content_bitmask:0b1000, type: "doc", desc: "강의 교안 및 보충 자료 다운로드 링크와 텍스트가 표시됩니다." },
 ];
 
 const BITS = 4;
@@ -28,6 +29,7 @@ function col(idx){ return COLORS[idx % COLORS.length]; }
 export default function NewPrototype() {
   const [contents, setContents] = useState(INIT_CONTENTS);
   const [execId, setExecId] = useState(1); // 현재 실행 주체
+  const [showPopup, setShowPopup] = useState(false);
 
   const execContent = useMemo(() => contents.find(c => c.id === execId), [contents, execId]);
 
@@ -151,8 +153,20 @@ export default function NewPrototype() {
 
       {/* 실행 주체 선택 */}
       <div style={{ marginBottom:20 }}>
-        <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", marginBottom:8,
-          textTransform:"uppercase", letterSpacing:"0.06em" }}>실행 주체 선택</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 8 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase", letterSpacing:"0.06em" }}>실행 주체 선택</div>
+          <button 
+            onClick={() => setShowPopup(true)}
+            style={{
+              padding: "8px 16px", background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)",
+              transition: "transform 0.1s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
+            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+            🚀 {contents.find(c => c.id === execId)?.title} 콘텐츠 실행
+          </button>
+        </div>
         <div style={{ display:"flex", gap:8 }}>
           {contents.map((c, i) => {
             const gc = col(i);
@@ -269,6 +283,110 @@ export default function NewPrototype() {
           })}
         </div>
       </div>
+
+      {/* 팝업 모달 */}
+      {showPopup && execContent && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(17, 24, 39, 0.7)", backdropFilter: "blur(8px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999,
+          padding: 20
+        }}>
+          <div style={{
+            background: "#fff", width: "100%", maxWidth: 1200, height: "85vh", borderRadius: 24,
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)", overflow: "hidden", display: "flex", flexDirection: "column"
+          }}>
+            {/* Header */}
+            <div style={{ padding: "16px 24px", borderBottom: "1px solid #E5E7EB", display: "flex", justifyContent: "space-between", alignItems: "center", background: "#fdfdfd" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <span style={{ fontSize: 18, fontWeight: 700, color: "#111827" }}>{execContent.title}</span>
+                <span style={{ fontSize: 12, background: "#EEF2FF", color: "#4F46E5", padding: "4px 8px", borderRadius: 8, fontWeight: 700 }}>실행 중인 콘텐츠</span>
+              </div>
+              <button 
+                onClick={() => setShowPopup(false)}
+                style={{ background: "#F3F4F6", border: "none", width: 32, height: 32, borderRadius: 16, cursor: "pointer", fontSize: 16, color: "#4B5563", display: "flex", alignItems: "center", justifyContent: "center", transition: "background 0.2s" }}
+                onMouseOver={(e) => e.currentTarget.style.background = "#E5E7EB"}
+                onMouseOut={(e) => e.currentTarget.style.background = "#F3F4F6"}
+              >
+                ✕
+              </button>
+            </div>
+            {/* Body */}
+            <div style={{ display: "flex", flex: 1, overflow: "hidden" }}>
+              {/* Main Content Area */}
+              <div style={{ flex: 3, background: "#000", display: "flex", flexDirection: "column", position: "relative" }}>
+                 {execContent.type === 'video' ? (
+                   <video controls autoPlay src={execContent.url} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                 ) : (
+                   <div style={{ color: "#fff", textAlign: "center", padding: 40, margin: "auto" }}>
+                     <div style={{ fontSize: 64, marginBottom: 20 }}>{execContent.type === 'quiz' ? '📝' : '📄'}</div>
+                     <h3 style={{ fontSize: 28, margin: "0 0 12px 0", fontWeight: 700 }}>{execContent.title}</h3>
+                     <p style={{ color: "#9CA3AF", fontSize: 16 }}>{execContent.desc}</p>
+                   </div>
+                 )}
+              </div>
+              
+              {/* Scope 관련 콘텐츠 (Side Panel) */}
+              <div style={{ width: 400, background: "#F9FAFB", borderLeft: "1px solid #E5E7EB", overflowY: "auto", display: "flex", flexDirection: "column" }}>
+                <div style={{ padding: "20px 24px", borderBottom: "1px solid #E5E7EB", background: "#fff", position: "sticky", top: 0, zIndex: 10 }}>
+                  <h4 style={{ margin: 0, fontSize: 15, fontWeight: 800, color: "#111827", display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ color: "#4F46E5" }}>⚡</span> 함께 노출된 콘텐츠
+                  </h4>
+                  <div style={{ fontSize: 12, color: "#6B7280", marginTop: 4 }}>현재 Bitmask 설정에 의해 표시됩니다</div>
+                </div>
+                
+                <div style={{ padding: 24, display: "flex", flexDirection: "column", gap: 16 }}>
+                  {results.filter(c => c.visible && c.id !== execContent.id).length === 0 ? (
+                    <div style={{ fontSize: 14, color: "#9CA3AF", textAlign: "center", padding: "40px 0", background: "#F3F4F6", borderRadius: 12 }}>같이 노출될 콘텐츠가 없습니다.</div>
+                  ) : (
+                    results.filter(c => c.visible && c.id !== execContent.id).map(c => (
+                      <div key={c.id} style={{
+                        background: "#fff", border: "1px solid #E5E7EB", borderRadius: 16, padding: 18,
+                        boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)", transition: "transform 0.2s, box-shadow 0.2s",
+                        cursor: "pointer"
+                      }}
+                      onMouseOver={(e) => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0,0,0,0.1)"; }}
+                      onMouseOut={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0,0,0,0.05)"; }}
+                      >
+                         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+                           <div style={{ width: 32, height: 32, borderRadius: 8, background: c.type === 'video' ? '#FEE2E2' : c.type === 'quiz' ? '#E0E7FF' : '#FEF3C7', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>
+                             {c.type === 'video' ? '▶️' : c.type === 'quiz' ? '📝' : '📄'}
+                           </div>
+                           <span style={{ fontWeight: 700, fontSize: 15, color: "#111827" }}>{c.title}</span>
+                         </div>
+                         <p style={{ margin: 0, fontSize: 13, color: "#6B7280", lineHeight: 1.5 }}>{c.desc}</p>
+                         
+                         {c.type === 'video' && (
+                           <div style={{ marginTop: 16, background: "#000", borderRadius: 10, overflow: "hidden", aspectRatio: "16/9", position: "relative" }}>
+                             <video src={c.url} style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
+                             <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: 40, height: 40, background: "rgba(255,255,255,0.9)", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#4F46E5", fontSize: 16, paddingLeft: 3 }}>▶</div>
+                           </div>
+                         )}
+                         {c.type === 'quiz' && (
+                           <div style={{ marginTop: 16 }}>
+                             <button style={{ width: "100%", background: "#4F46E5", color: "#fff", border: "none", padding: "10px", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13, display: "flex", justifyContent: "center", gap: 6 }}>
+                               <span>풀기 시작</span> <span>→</span>
+                             </button>
+                           </div>
+                         )}
+                         {c.type === 'doc' && (
+                           <div style={{ marginTop: 16 }}>
+                             <button style={{ width: "100%", background: "#F3F4F6", color: "#374151", border: "1px solid #D1D5DB", padding: "10px", borderRadius: 8, fontWeight: 700, cursor: "pointer", fontSize: 13, display: "flex", justifyContent: "center", gap: 6, transition: "background 0.2s" }}
+                             onMouseOver={(e) => e.currentTarget.style.background = "#E5E7EB"}
+                             onMouseOut={(e) => e.currentTarget.style.background = "#F3F4F6"}>
+                               <span>자료 다운로드</span> <span>↓</span>
+                             </button>
+                           </div>
+                         )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
