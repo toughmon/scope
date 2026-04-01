@@ -99,7 +99,7 @@ export default function NewPrototype() {
       </div>
 
       {/* 콘텐츠 카드 — bitmask 편집 */}
-      <div style={{ marginBottom:20 }}>
+      <div style={{ marginTop:40, marginBottom:20 }}>
         <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", marginBottom:10,
           textTransform:"uppercase", letterSpacing:"0.06em" }}>
           콘텐츠 · content_bitmask 편집 (비트 클릭으로 토글)
