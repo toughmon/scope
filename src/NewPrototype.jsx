@@ -1,18 +1,18 @@
 import { useState, useMemo } from "react";
 
 // 각 실행 주체는 두 가지 비트값을 가진다
-//   slot_bit       = 자신의 고유 슬롯 (2^(order-1))
-//   content_bitmask = 내가 실행될 때 보여줄 슬롯들의 OR 합
-//                    → 이 안에 자신의 slot_bit 포함
+//   position_bit       = 자신의 고유 포지션 (2^(order-1))
+//   content_bitmask = 내가 실행될 때 보여줄 포지션들의 OR 합
+//                    → 이 안에 자신의 position_bit 포함
 //
-// 예) 영상A (slot 0001, bitmask 0101)
+// 예) 영상A (position 0001, bitmask 0101)
 //     → 0101 = 영상A(0001) | 퀴즈(0100)
 //     → 영상A 실행 시: display = 0101, 영상A·퀴즈 노출, 영상B 숨김
 const INIT_CONTENTS = [
-  { id:1, title:"강의 영상 A", order:1, slot_bit:0b0001, content_bitmask:0b1101, type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", desc: "HTML5 빅벅버니 비디오 샘플입니다. 실제 영상 재생을 테스트해볼 수 있습니다." },
-  { id:2, title:"강의 영상 B", order:2, slot_bit:0b0010, content_bitmask:0b1010, type: "video", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm", desc: "대체 비디오 소스입니다. 다른 내용을 시연할 때 사용됩니다." },
-  { id:3, title:"퀴즈 패널",   order:3, slot_bit:0b0100, content_bitmask:0b0100, type: "quiz", desc: "학습 내용을 점검하는 퀴즈 섹션입니다." },
-  { id:4, title:"학습 자료",   order:4, slot_bit:0b1000, content_bitmask:0b1000, type: "doc", desc: "강의 교안 및 보충 자료 다운로드 링크와 텍스트가 표시됩니다." },
+  { id:1, title:"강의 영상 A", order:1, position_bit:0b0001, content_bitmask:0b1101, type: "video", url: "https://www.w3schools.com/html/mov_bbb.mp4", desc: "HTML5 빅벅버니 비디오 샘플입니다. 실제 영상 재생을 테스트해볼 수 있습니다." },
+  { id:2, title:"강의 영상 B", order:2, position_bit:0b0010, content_bitmask:0b1010, type: "video", url: "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm", desc: "대체 비디오 소스입니다. 다른 내용을 시연할 때 사용됩니다." },
+  { id:3, title:"퀴즈 패널",   order:3, position_bit:0b0100, content_bitmask:0b0100, type: "quiz", desc: "학습 내용을 점검하는 퀴즈 섹션입니다." },
+  { id:4, title:"학습 자료",   order:4, position_bit:0b1000, content_bitmask:0b1000, type: "doc", desc: "강의 교안 및 보충 자료 다운로드 링크와 텍스트가 표시됩니다." },
 ];
 
 const BITS = 4;
@@ -38,8 +38,8 @@ export default function NewPrototype() {
 
   const results = useMemo(() => contents.map(c => ({
     ...c,
-    andResult: displayMask & c.slot_bit,
-    visible:   (displayMask & c.slot_bit) !== 0,
+    andResult: displayMask & c.position_bit,
+    visible:   (displayMask & c.position_bit) !== 0,
   })), [contents, displayMask]);
 
   function toggleMaskBit(id, bit) {
@@ -57,9 +57,9 @@ export default function NewPrototype() {
         <h2 style={{ fontSize:17, fontWeight:600, margin:"0 0 10px" }}>LMS 콘텐츠 동시 노출 프로토타입 (New)</h2>
         <div style={{ background:"#F9FAFB", border:"1px solid #E5E7EB", borderRadius:10, padding:"12px 16px",
           fontFamily:"monospace", fontSize:11, lineHeight:2 }}>
-          <div><span style={{ color:"#6366F1", fontWeight:700 }}>slot_bit</span>{"       "}<span style={{ color:"#6B7280" }}>= 콘텐츠 자신의 고유 슬롯 (2^(order-1))</span></div>
-          <div><span style={{ color:"#6366F1", fontWeight:700 }}>content_bitmask</span><span style={{ color:"#6B7280" }}> = 내가 실행될 때 보여줄 슬롯들의 OR 합 (자신 포함)</span></div>
-          <div><span style={{ color:"#6366F1", fontWeight:700 }}>노출 판별</span>{"     "}<span style={{ color:"#6B7280" }}> = execContent.content_bitmask </span><span style={{ color:"#F97316", fontWeight:700 }}>&</span><span style={{ color:"#6B7280" }}> target.slot_bit ≠ 0</span></div>
+          <div><span style={{ color:"#6366F1", fontWeight:700 }}>position_bit</span>{"       "}<span style={{ color:"#6B7280" }}>= 콘텐츠 자신의 고유 포지션 (2^(order-1))</span></div>
+          <div><span style={{ color:"#6366F1", fontWeight:700 }}>content_bitmask</span><span style={{ color:"#6B7280" }}> = 내가 실행될 때 보여줄 포지션들의 OR 합 (자신 포함)</span></div>
+          <div><span style={{ color:"#6366F1", fontWeight:700 }}>노출 판별</span>{"     "}<span style={{ color:"#6B7280" }}> = execContent.content_bitmask </span><span style={{ color:"#F97316", fontWeight:700 }}>&</span><span style={{ color:"#6B7280" }}> target.position_bit ≠ 0</span></div>
         </div>
       </div>
 
@@ -88,12 +88,12 @@ export default function NewPrototype() {
                   </span>
                 </div>
 
-                {/* slot_bit */}
+                {/* position_bit */}
                 <div style={{ marginBottom:10 }}>
-                  <div style={{ fontSize:9, color:"#9CA3AF", marginBottom:3 }}>slot_bit (고유 슬롯)</div>
+                  <div style={{ fontSize:9, color:"#9CA3AF", marginBottom:3 }}>position_bit (고유 포지션)</div>
                   <div style={{ display:"flex", gap:3 }}>
                     {Array.from({length:BITS},(_,bi) => {
-                      const on = !!(c.slot_bit & (1 << (BITS-1-bi)));
+                      const on = !!(c.position_bit & (1 << (BITS-1-bi)));
                       return (
                         <div key={bi} style={{ width:28, height:28, borderRadius:5, display:"flex",
                           alignItems:"center", justifyContent:"center",
@@ -105,7 +105,7 @@ export default function NewPrototype() {
                         </div>
                       );
                     })}
-                    <span style={{ fontFamily:"monospace", fontSize:11, color:"#9CA3AF", alignSelf:"center", marginLeft:4 }}>= {c.slot_bit}</span>
+                    <span style={{ fontFamily:"monospace", fontSize:11, color:"#9CA3AF", alignSelf:"center", marginLeft:4 }}>= {c.position_bit}</span>
                   </div>
                 </div>
 
@@ -118,10 +118,10 @@ export default function NewPrototype() {
                     {Array.from({length:BITS},(_,bi) => {
                       const bitVal = 1 << (BITS-1-bi);
                       const on = !!(c.content_bitmask & bitVal);
-                      // 어떤 슬롯인지 표시
-                      const who = contents.find(x => x.slot_bit === bitVal);
+                      // 어떤 포지션인지 표시
+                      const who = contents.find(x => x.position_bit === bitVal);
                       return (
-                        <div key={bi} title={who ? `${who.title} 슬롯` : `bit${BITS-1-bi}`}
+                        <div key={bi} title={who ? `${who.title} 포지션` : `bit${BITS-1-bi}`}
                           onClick={() => toggleMaskBit(c.id, bitVal)}
                           style={{ width:28, height:28, borderRadius:5, display:"flex",
                             alignItems:"center", justifyContent:"center",
@@ -136,9 +136,9 @@ export default function NewPrototype() {
                     })}
                     <span style={{ fontFamily:"monospace", fontSize:11, color: isExec ? gc.text : "#9CA3AF", fontWeight:700, marginLeft:4 }}>= {c.content_bitmask}</span>
                   </div>
-                  {/* 어떤 슬롯이 켜져 있는지 */}
+                  {/* 어떤 포지션이 켜져 있는지 */}
                   <div style={{ marginTop:5, display:"flex", gap:3, flexWrap:"wrap" }}>
-                    {contents.filter(x => !!(c.content_bitmask & x.slot_bit)).map(x => (
+                    {contents.filter(x => !!(c.content_bitmask & x.position_bit)).map(x => (
                       <span key={x.id} style={{ fontSize:9, background: col(contents.indexOf(x)).bg,
                         color: col(contents.indexOf(x)).text, border:`1px solid ${col(contents.indexOf(x)).border}`,
                         borderRadius:4, padding:"1px 5px" }}>{x.title}</span>
@@ -228,7 +228,7 @@ export default function NewPrototype() {
                       display:"flex", alignItems:"center", gap:8, flexWrap:"wrap" }}>
                       <span style={{ color:"#6366F1", fontWeight:700 }}>{bin(displayMask)}</span>
                       <span style={{ color:"#F97316", fontWeight:700, fontSize:14 }}>&</span>
-                      <span style={{ color: c.visible ? gc.text : "#9CA3AF" }}>{bin(c.slot_bit)}</span>
+                      <span style={{ color: c.visible ? gc.text : "#9CA3AF" }}>{bin(c.position_bit)}</span>
                       <span style={{ color:"#9CA3AF" }}>=</span>
                       <span style={{ fontWeight:700, color: c.visible ? gc.text : "#C0C4CC",
                         background: c.visible ? "#fff" : "transparent",
@@ -272,7 +272,7 @@ export default function NewPrototype() {
                 display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:6 }}>
                 <span style={{ fontWeight:700, fontSize:14, color: c.visible ? gc.text : "#9CA3AF" }}>{c.title}</span>
                 <span style={{ fontFamily:"monospace", fontSize:10, color: c.visible ? gc.border : "#D1D5DB" }}>
-                  slot: {bin(c.slot_bit)}
+                  position: {bin(c.position_bit)}
                 </span>
                 {c.visible && (
                   <span style={{ fontSize:10, background: gc.pill, color:"#fff",
