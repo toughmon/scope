@@ -101,7 +101,7 @@ export default function NewPrototype() {
       {/* 콘텐츠 카드 — bitmask 편집 */}
       <div style={{ marginTop:40, marginBottom:20 }}>
         <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", marginBottom:10,
-          textTransform:"uppercase", letterSpacing:"0.06em" }}>
+          textTransform:"uppercase", letterSpacing:"0.06em", textAlign:"left" }}>
           콘텐츠 · content_bitmask 편집 (비트 클릭으로 토글)
         </div>
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(220px,1fr))", gap:12 }}>
@@ -190,7 +190,7 @@ export default function NewPrototype() {
       {execContent && (
         <div style={{ marginBottom:20 }}>
           <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", marginBottom:10,
-            textTransform:"uppercase", letterSpacing:"0.06em" }}>AND 연산</div>
+            textTransform:"uppercase", letterSpacing:"0.06em", textAlign:"left" }}>AND 연산</div>
 
           <div style={{ background:"#F9FAFB", border:"1px solid #E5E7EB", borderRadius:12, overflow:"hidden" }}>
 
