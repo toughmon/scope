@@ -63,6 +63,41 @@ export default function NewPrototype() {
         </div>
       </div>
 
+      {/* 실행 주체 선택 */}
+      <div style={{ marginBottom:20 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 8 }}>
+          <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase", letterSpacing:"0.06em" }}>실행 주체 선택</div>
+          <button 
+            onClick={() => setShowPopup(true)}
+            style={{
+              padding: "8px 16px", background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)",
+              transition: "transform 0.1s"
+            }}
+            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
+            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
+          >
+            🚀 {contents.find(c => c.id === execId)?.title} 콘텐츠 실행
+          </button>
+        </div>
+        <div style={{ display:"flex", gap:8 }}>
+          {contents.map((c, i) => {
+            const gc = col(i);
+            const active = c.id === execId;
+            return (
+              <button key={c.id} onClick={() => setExecId(c.id)} style={{
+                padding:"10px 20px", borderRadius:10, cursor:"pointer", fontWeight:700, fontSize:13,
+                border:`2px solid ${active ? gc.border : "#E5E7EB"}`,
+                background: active ? gc.pill : "transparent",
+                color: active ? "#fff" : "#6B7280",
+                transition:"all .15s",
+              }}>
+                ▶ {c.title}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* 콘텐츠 카드 — bitmask 편집 */}
       <div style={{ marginBottom:20 }}>
         <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", marginBottom:10,
@@ -146,41 +181,6 @@ export default function NewPrototype() {
                   </div>
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 실행 주체 선택 */}
-      <div style={{ marginBottom:20 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 8 }}>
-          <div style={{ fontSize:11, fontWeight:700, color:"#6B7280", textTransform:"uppercase", letterSpacing:"0.06em" }}>실행 주체 선택</div>
-          <button 
-            onClick={() => setShowPopup(true)}
-            style={{
-              padding: "8px 16px", background: "linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(79, 70, 229, 0.3)",
-              transition: "transform 0.1s"
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = "scale(1.02)"}
-            onMouseOut={(e) => e.currentTarget.style.transform = "scale(1)"}
-          >
-            🚀 {contents.find(c => c.id === execId)?.title} 콘텐츠 실행
-          </button>
-        </div>
-        <div style={{ display:"flex", gap:8 }}>
-          {contents.map((c, i) => {
-            const gc = col(i);
-            const active = c.id === execId;
-            return (
-              <button key={c.id} onClick={() => setExecId(c.id)} style={{
-                padding:"10px 20px", borderRadius:10, cursor:"pointer", fontWeight:700, fontSize:13,
-                border:`2px solid ${active ? gc.border : "#E5E7EB"}`,
-                background: active ? gc.pill : "transparent",
-                color: active ? "#fff" : "#6B7280",
-                transition:"all .15s",
-              }}>
-                ▶ {c.title}
-              </button>
             );
           })}
         </div>
